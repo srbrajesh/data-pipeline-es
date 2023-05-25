@@ -67,12 +67,10 @@ def generate_batch_of_clickstream_events(batch_size):
 
 
 from pykafka import KafkaClient
-import threading
-
-KAFKA_HOST = "10.0.0.16:9092" # Or the address you want
+from .constants import KAFKA_HOST, TOPIC_NAME
 
 client = KafkaClient(hosts = KAFKA_HOST)
-topic = client.topics["clickstream"]
+topic = client.topics[TOPIC_NAME]
 
 events = generate_batch_of_clickstream_events(100)
 
