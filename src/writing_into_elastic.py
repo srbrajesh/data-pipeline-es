@@ -16,6 +16,7 @@
 import pyspark
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import *
+from constants import TOPIC_NAME, KAFKA_HOST
 
 # Create a Spark session.
 spark = SparkSession.builder\
@@ -23,7 +24,7 @@ spark = SparkSession.builder\
         .config('spark.driver.bindAddress','10.0.0.16').appName("Clickstream Data Processing").getOrCreate()
 
 # Read the clickstream data from Kafka.
-df = spark.readStream.format("kafka").option("kafka.bootstrap.servers", "10.0.0.16:9092").option("subscribe", "clickstream").load()
+df = spark.readStream.format("kafka").option("kafka.bootstrap.servers", KAFKA_HOST).option("subscribe", TOPIC_NAME).load()
 
 # Aggregate the clickstream data by URL and country.
 agg_df = df.groupBy("url", "country").agg(
@@ -33,7 +34,7 @@ agg_df = df.groupBy("url", "country").agg(
 )
 
 # Write the aggregated data to Elasticsearch.
-agg_df.writeStream.format("org.elasticsearch.spark.sql").mode("append").option("es.nodes", "localhost:8200").option("es.index", "clickstream").start()
+agg_df.writeStream.format("org.elasticsearch.spark.sql").mode("append").option("es.nodes", "localhost:9200").option("es.index", "clickstream").start()
 
 # Start the Spark streaming job.
 spark.streams.awaitTermination()
